@@ -8,7 +8,7 @@ console.log(Keystone);
 
 
 var client = new Keystone({
-  url: "http://10.0.0.11:5000/v2.0",
+  url: "http://10.0.0.11:5000/v3/auth/tokens",
   debug: true
 });
 
