@@ -67,15 +67,14 @@ app.get('/getAuthTokens',function (req,res) {
             var token  = response.headers['x-subject-token'];
             console.log("token:" + token);
             request({
-                url: "http://10.0.0.11:5000/v3/projects",
+                url: "http://10.0.0.11:9292/v2/images",
                 method: "GET",
-                json: true,
                 headers: {
                     "X-Auth-Token": token
                 }
             },function (error,response,body) {
 
-                console.log("You have a list of projects");
+                console.log("You have a list of Images");
                 console.log(response.body);
                 console.log("error: " +  error);
 
