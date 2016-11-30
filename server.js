@@ -1,13 +1,13 @@
 
 var express = require("express");
-var http = require('http');
-var querystring = require('querystring');
+var request = require('request');
+
 var app = express();
 
-var Keystone = require("openclient").getAPI('openstack', 'identity', '2.0');
-console.log("Keystone:");
-console.log("**************");
-console.log(Keystone);
+// var Keystone = require("openclient").getAPI('openstack', 'identity', '2.0');
+// console.log("Keystone:");
+// console.log("**************");
+// console.log(Keystone);
 
 
 // var client = new Keystone({
@@ -24,54 +24,72 @@ app.get('/',function(req,res){
 
 app.get('/getAuthTokens',function (req,res) {
 
-    console.log("/updateproject called ....");
+    console.log("/getAuthTokens called ....");
+    //
+    var requestData = {
+        "auth": {
+            "identity": {
+                "methods": [
+                    "password"
+                ],
+                "password": {
+                    "user": {
+                        "name": "admin",
+                        "password": "admin_user_secret",
+                        "domain": {
+                            "name": "Default"
+                        }
 
-   var post_data = querystring.stringify({
-     "auth": {
-         "identity": {
-             "methods": [
-                 "password"
-             ],
-             "password": {
-                 "user": {
-                     "name": "admin",
-                     "password": "admin_user_secret",
-                     "domain": {
-                                "name":"Default"
-                             }
+                    }
+                }
+            }
+        }
+    };
 
-                 }
-             }
-         }
-     }
-});
+    request({
+        url: "http://10.0.0.11:5000/v3/auth/tokens",
+        method: "POST",
+        json: true,
+        headers: {
+            "content-type": "application/json"
+        },
+        body: requestData
 
-  // An object of options to indicate where to post to
-  var post_options = {
-      host: 'http://10.0.0.11',
-      port: '5000',
-      path: '/v3/auth/tokens',
-      method: 'POST',
-      headers: {
-          'Content-Type': 'application/x-www-form-urlencoded',
-          'Content-Length': Buffer.byteLength(post_data)
-      }
-  };
+    },function (error, response, body) {
+        if (!error && response.statusCode === 200) {
+            console.log(body)
+        }
+        else {
 
-  // Set up the request
-  var post_req = http.request(post_options, function(res) {
-      res.setEncoding('utf8');
-      res.on('data', function (chunk) {
-          console.log("**************************");
-          console.log("'Response");
-          console.log("**************************");
-          console.log(chunk);
-      });
-  });
+            console.log("You have the right tokens!!!");
+            //console.log(response.headers['x-subject-token']);
 
-  // post the data
-  post_req.write(post_data);
-  post_req.end();
+            var token  = response.headers['x-subject-token'];
+            console.log("token:" + token);
+            request({
+                url: "http://10.0.0.11:5000/v3/projects",
+                method: "GET",
+                json: true,
+                headers: {
+                    "X-Auth-Token": token
+                }
+            },function (error,response,body) {
+
+                console.log("You have a list of projects");
+                console.log(response.body);
+                console.log("error: " +  error);
+
+
+            });
+
+
+
+
+
+
+
+        }
+    } );
 
 
 
