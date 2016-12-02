@@ -28,22 +28,23 @@ app.get('/getAuthTokens',function (req,res) {
     //
     var requestData = {
         "auth": {
-            "identity": {
-                "methods": [
-                    "password"
-                ],
-                "password": {
-                    "user": {
-                        "name": "admin",
-                        "password": "admin_user_secret",
-                        "domain": {
-                            "name": "Default"
-                        }
-
-                    }
+        "identity": {
+            "methods": [
+                "password"
+            ],
+            "password": {
+                "user": {
+                    "id": "7e6866960117460dae1875daddef328c",
+                    "password": "admin_user_secret"
                 }
             }
+        },
+        "scope": {
+            "project": {
+                "id": "0b3a3b9096d84d40ac121d2d5b6bf2f9"
+            }
         }
+    }
     };
 
     request({
@@ -67,14 +68,14 @@ app.get('/getAuthTokens',function (req,res) {
             var token  = response.headers['x-subject-token'];
             console.log("token:" + token);
             request({
-                url: "http://10.0.0.11:9292/v2/images",
+                url: "http://10.0.0.11:5000/v3/projects",
                 method: "GET",
                 headers: {
                     "X-Auth-Token": token
                 }
             },function (error,response,body) {
 
-                console.log("You have a list of Images");
+                console.log("You have a list of Projects");
                 console.log(response.body);
                 console.log("error: " +  error);
 
